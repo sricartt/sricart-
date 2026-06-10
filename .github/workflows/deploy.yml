@@ -1,0 +1,38 @@
+name: Deploy SRICART — Firestore Backend Only
+
+# ✅ Cloudflare Pages already auto-deploys your site when you push to GitHub
+#    (it's connected directly via the Pages dashboard)
+#    This workflow ONLY deploys your Firestore security rules and indexes
+#    That's all GitHub Actions needs to do
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  deploy-firebase-backend:
+    name: Deploy Firestore Rules and Indexes
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Deploy Firestore security rules
+        uses: w9jds/firebase-action@master
+        with:
+          args: deploy --only firestore:rules --project fir-v1-a695a
+        env:
+          GCP_SA_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+
+      - name: Deploy Firestore indexes
+        uses: w9jds/firebase-action@master
+        with:
+          args: deploy --only firestore:indexes --project fir-v1-a695a
+        env:
+          GCP_SA_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+
+      - name: Done
+        run: |
+          echo "Firestore rules and indexes deployed to fir-v1-a695a"
